@@ -203,6 +203,13 @@ def main():
         total_amount_spent = TextButton(650,270, str(money_made))
         total_amount_spent.draw(screen)
 
+    def add_drink_to_tray(drink_created, drinks_created, customer_order): # if the drink is valid i.e. it is in the order then it gets added to tray
+        if is_valid(drink_created, drinks_created, customer_order): # check the drink is something the customer ordered.
+            drinks_created.append(drink_created) # add it to the customer's tray
+            #drink_created=[] # make way for the creation of a new drink
+        #else:
+            #drink_created = []
+
     # define a variable to control the main loop
     running = True 
 
@@ -279,44 +286,28 @@ def main():
         
         # empty glasses can be selected. 
         if martini_glass_button.switch and glass_clickable["Martini Glass"] and glass_clickable["Lowball Glass"]:
-            if is_valid(drink_created, drinks_created, customer_order): # check the drink is something the customer ordered.
-                drinks_created.append(drink_created) # add it to the customer's tray
-                drink_created=[] # make way for the creation of a new drink
-                print(f"drink created: {drink_created}")
-                print(f"drinks created: {drinks_created}")
-                print(f"customer order: {customer_order}")
-            else:
-                print(f"this is not valid: {drink_created}")
-                drink_created = []
+            add_drink_to_tray(drink_created, drinks_created, customer_order)
+            drink_created = []
             martini_glass.selected = True
             glass_clickable["Martini Glass"] = False
             martini_glass_button.switch = False
         elif martini_glass_button.switch and glass_clickable["Martini Glass"] and glass_clickable["Lowball Glass"]==False:
-            if is_valid(drink_created, drinks_created, customer_order):
-                drinks_created.append(drink_created)
-                drink_created = []
-            else:
-                drink_created = []
+            add_drink_to_tray(drink_created, drinks_created, customer_order)
+            drink_created = []
             martini_glass.selected = True
             lowball_glass.selected = False
             glass_clickable["Martini Glass"] = False
             glass_clickable["Lowball Glass"] = True
             martini_glass_button.switch = False
         elif lowball_glass_button.switch and glass_clickable["Lowball Glass"] and glass_clickable["Martini Glass"]:
-            if is_valid(drink_created, drinks_created, customer_order):
-                drinks_created.append(drink_created)
-                drink_created = []
-            else:
-                drink_created = []
+            add_drink_to_tray(drink_created, drinks_created, customer_order)
+            drink_created = []
             lowball_glass.selected = True
             glass_clickable["Lowball Glass"] = False
             lowball_glass_button.switch = False
         elif lowball_glass_button.switch and glass_clickable["Lowball Glass"] and glass_clickable["Martini Glass"]==False:
-            if is_valid(drink_created, drinks_created, customer_order):
-                drinks_created.append(drink_created)
-                drink_created = []
-            else:
-                drink_created = []
+            add_drink_to_tray(drink_created, drinks_created, customer_order)
+            drink_created = []
             lowball_glass.selected = True
             martini_glass.selected = False
             glass_clickable["Lowball Glass"] = False
