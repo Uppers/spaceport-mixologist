@@ -78,6 +78,8 @@ def main():
     # how much money the barman has made
     money_made = 0
 
+
+
     def create_customer_drinks_order(drinks_order):
         order = []
         for drink in drinks_order:
@@ -177,8 +179,29 @@ def main():
                 sortedtwodlist.append(list.sort())
             return sortedtwodlist
 
+    def pop_customer(customer_queue_number): # takes a customer that has been served from queue and returns the drinks they ordered.
+        customer_served = customer_queue.customer_list.pop(customer_queue_number) # take the serviced customer out of the queue.
+        drinks_served = customer_served.order # a list of drinks ordered
+        customer_queue.customer_list.insert(customer_queue_number, None) # or the _fill_empty_list_space() queue function will throw an index not found error
+        return drinks_served
 
+    def calculate_earnings(drinks_served):
+        revenue = 0
+        for drink in drinks_served:
+            revenue += drink.price # get the price of each drink and add it to the total
+        return revenue
 
+    def display_drinks_created(drinks_created, screen):
+        list_of_drinks_images = convert_made_coctails_to_images(drinks_created)
+        x_axis = 390
+        for image in list_of_drinks_images:
+            x_axis += 50
+            drink_button = Button(x_axis,300, image)
+            drink_button.draw(screen)
+
+    def display_score(money_made, screen): # displays amount of money the player has made on screen
+        total_amount_spent = TextButton(650,270, str(money_made))
+        total_amount_spent.draw(screen)
 
     # define a variable to control the main loop
     running = True 
@@ -300,38 +323,18 @@ def main():
             glass_clickable["Martini Glass"] = True
             lowball_glass_button.switch = False
         
-    
- 
         #show drinks created by player
-        list_of_drinks_images = convert_made_coctails_to_images(drinks_created)
-        x_axis = 390
-        for image in list_of_drinks_images:
-            x_axis += 50
-            drink_button = Button(x_axis,300, image)
-            drink_button.draw(WIN)
+        display_drinks_created(drinks_created, WIN)
 
-
-
-        # has the order been satisfied?
+        # has the order been satisfied? if so then:..
         if is_same_2d_lists(drinks_created, customer_order):
-            print("customer served")
-            customer_served = customer_queue.customer_list.pop(customer_queue_number) # take the serviced customer out of the queue.
-            customer_reciept = customer_served.order # a list of drinks ordered
-            #cost = 0
-            for drink in customer_reciept:
-                money_made += drink.price # get the price of each drink and add it to the total
-            #print(cost)
-            print(customer_queue.customer_list)
-            customer_queue.customer_list.insert(customer_queue_number, None) # or the _fill_empty_list_space() queue function will throw an index not found error
+            drinks_served = pop_customer(customer_queue_number) # remove customer from queue and return what drinks were served.
+            money_made += calculate_earnings(drinks_served) # calculate the earnings and add to total.
             drinks_created = [] 
             customer_order = []
 
-                #WIN.blit(pygame.image.load(customer_queue.customer_list[i].face), customer_coordinates[i])
-
-        # print the total on the page 
-        total_amount_spent = TextButton(650,270, str(money_made))
-        total_amount_spent.draw(WIN)
-
+        # print the total on the page
+        display_score(money_made, WIN) 
 
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
