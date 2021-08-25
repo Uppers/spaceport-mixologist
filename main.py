@@ -1,4 +1,3 @@
-
 from cocktail import GinAndTonic, VesperMartini
 from order import Order
 import pygame 
@@ -210,6 +209,11 @@ def main():
         #else:
             #drink_created = []
 
+    def draw_ingredient_button(drink_obj, x, y, screen):
+        button = Button(x,y, drink_obj.image)
+        button.draw(WIN)
+        return {"name": drink_obj.name, "button": button}
+
     # define a variable to control the main loop
     running = True 
 
@@ -220,6 +224,18 @@ def main():
         
         # Customer Interaction 
         customer_queue.update_customer_list()
+
+        # this bit of code checks for a customer who left because they werent served in time.
+        # it then resets all the parameters associated with serving that customer.
+        if customer_queue_number is not None: 
+            if customer_queue.customer_list[customer_queue_number] is None:
+                # reset everything
+                customer_order = [] 
+                drink_created = []
+                drinks_created = []
+                glass_clickable = dict.fromkeys(glass_clickable, True)
+
+        # this bit of code generates customers and customer interactivity
         for i in range(0, len(customer_queue.customer_list)):
             current_customer = customer_queue.customer_list[i]
             if current_customer:
@@ -234,47 +250,41 @@ def main():
                     if text.clicked:
                         print("clicked")
 
+
         # Available Drinks 
-        gin = Gin()
-        gin_button = Button(10,300, gin.image)
-        gin_button.draw(WIN)
-        vodka = Vodka()
-        vodka_button = Button(60,300, vodka.image)
-        vodka_button.draw(WIN)
-        vermouth = Vermouth()
-        vermouth_button = Button(110,300, vermouth.image)
-        vermouth_button.draw(WIN)
-        tonic = Tonic()
-        tonic_button = Button(160,300, tonic.image)
-        tonic_button.draw(WIN)
-        ice = Ice()
-        ice_button = Button(210,300, ice.image)
-        ice_button.draw(WIN)
+
+
+        gin_button = draw_ingredient_button(Gin(), 10, 300, WIN)
+        vodka_button = draw_ingredient_button(Vodka(), 60, 300, WIN)
+        vermouth_button = draw_ingredient_button(Vermouth(), 110, 300, WIN)
+        tonic_button = draw_ingredient_button(Tonic(), 160, 300, WIN)
+        ice_button = draw_ingredient_button(Ice(), 210, 300, WIN)
+
 
         # drinks are clicked
-        if gin_button.switch and add_ingredient["Gin"]:
-            drink_created.append(gin.name) # add gin.
+        if gin_button["button"].switch and add_ingredient[gin_button["name"]]:
+            drink_created.append(gin_button["name"])
             add_ingredient["Gin"] = False # drink can only be selected once (see event loop for more details).
             # either glass can now be selected
             glass_clickable["Lowball Glass"] = True
             glass_clickable["Martini Glass"] = True
-        if vodka_button.switch and add_ingredient["Vodka"]:
-            drink_created.append(vodka.name) # add vodka
+        if vodka_button["button"].switch and add_ingredient[vodka_button["name"]]:
+            drink_created.append(vodka_button["name"])
             add_ingredient["Vodka"] = False
             glass_clickable["Lowball Glass"] = True
             glass_clickable["Martini Glass"] = True
-        if vermouth_button.switch and add_ingredient["Vermouth"]:
-            drink_created.append(vermouth.name) # add vermouth
+        if vermouth_button["button"].switch and add_ingredient[vermouth_button["name"]]:
+            drink_created.append(vermouth_button["name"])
             add_ingredient["Vermouth"] = False
             glass_clickable["Lowball Glass"] = True
             glass_clickable["Martini Glass"] = True
-        if tonic_button.switch and add_ingredient["Tonic"]:
-            drink_created.append(tonic.name) # add tonic
+        if tonic_button["button"].switch and add_ingredient[tonic_button["name"]]:
+            drink_created.append(tonic_button["name"])
             add_ingredient["Tonic"] = False
             glass_clickable["Lowball Glass"] = True
             glass_clickable["Martini Glass"] = True
-        if ice_button.switch and add_ingredient["Ice"]:
-            drink_created.append(ice.name) # add ice
+        if ice_button["button"].switch and add_ingredient[ice_button["name"]]:
+            drink_created.append(ice_button["name"])
             add_ingredient["Ice"] = False
             glass_clickable["Lowball Glass"] = True
             glass_clickable["Martini Glass"] = True
@@ -334,9 +344,7 @@ def main():
                 #change the value to False, to exit the main loop
                 running = False
             if event.type == pygame.MOUSEBUTTONUP:
-                for ingredient in add_ingredient:
-                    if add_ingredient[ingredient] == False:
-                        add_ingredient[ingredient] = True
+                add_ingredient = dict.fromkeys(add_ingredient, True) # sets all values to true 
 
         
         pygame.display.update()

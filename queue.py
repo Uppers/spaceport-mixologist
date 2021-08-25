@@ -44,7 +44,6 @@ class Queue():
         elif self.customer_list[1] is None:
             self._fill_space_if_empty(1)
         elif self.customer_list[2] is None:
-            print(self.customer_list)
             self._fill_space_if_empty(2)
 
     # this looks to see if any of the customers have lost their patience and need to leave the queue.

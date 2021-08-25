@@ -45,9 +45,6 @@ class Customer(Button, Order):
         if has_status_changed: # checks for change in status
             self._face() # changes the image.
 
-        
-        
-
 
     def _face(self):
         self.face = os.path.join("Assets",f"{self.name}",f"{self._customer_status}.png")
