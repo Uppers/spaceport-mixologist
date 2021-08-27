@@ -1,7 +1,5 @@
 import pygame
 
-
-
 class Button():
     """
     This makes images into clickable buttons.
