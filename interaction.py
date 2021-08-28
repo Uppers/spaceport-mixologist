@@ -89,7 +89,7 @@ class Interaction():
                 number_of_instances+=1
         return number_of_instances
 
-
+    # Identifies what the cocktail is from its ingredients and then provides the images of these cocktails as a list
     def convert_made_coctails_to_images(self, cocktail_ingredients_map, cocktail_name_map, list_of_cocktail_ingredients):
         images = []
         for list_of_ingredients in list_of_cocktail_ingredients:

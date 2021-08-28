@@ -4,9 +4,10 @@ import cv2
 import os
 from glass import Glass
 from queue import Queue 
-from button import Button, TextButton 
+from button import Button
 from ingredient import Gin, Ice, Tonic, Vermouth, Vodka
 from interaction import Interaction
+from display import Display
 
 def main():
 
@@ -34,6 +35,8 @@ def main():
     customer_queue = Queue(customer_coordinates)
 
     interaction = Interaction()
+
+    display = Display()
     
     martini_glass_name = "Martini Glass"
     lowball_glass_name = "Lowball Glass"
@@ -47,7 +50,7 @@ def main():
     lowball_glass_button = Button(350, 300, lowball_glass.image)
 
     # this is how we can link the martini glass type with the buttons
-    glasses = [martini_glass, lowball_glass]
+    glasses = (martini_glass, lowball_glass)
     glass_buttons = {martini_glass_name:martini_glass_button, lowball_glass_name:lowball_glass_button}
 
     # used to find the correct image for the made cocktails  
@@ -62,43 +65,15 @@ def main():
         "Vesper Martini": VesperMartini(),
     }
 
-    def display_drinks_created(drinks_created, screen):
-        list_of_drinks_images = interaction.convert_made_coctails_to_images(cocktail_ingredients_map, cocktail_name_map, drinks_created)
-        x_axis = 390
-        for image in list_of_drinks_images:
-            x_axis += 50
-            drink_button = Button(x_axis,300, image)
-            drink_button.draw(screen)
-
-    def display_score(money_made, screen): # displays amount of money the player has made on screen
-        total_amount_spent = TextButton(650,270, str(money_made))
-        total_amount_spent.draw(screen)
-
-    # makes the buttons for the ingredients such as ice, vodka etc.
-    def draw_ingredient_button(drink_obj, x, y, screen):
-        button = Button(x,y, drink_obj.image)
-        button.draw(screen)
-        return {"name": drink_obj.name, "button": button}
-
-    def display_customer_order_as_text_button(current_customer, screen):
-        # (when customer is toggled) the customer order is displayed
-        text = TextButton(10,10, current_customer.order_for_display)
-        text.draw(screen)
-
-    def display_customer(current_customer, screen):
-        # displays the customers on screen
-        current_customer.update_customer_status()
-        current_customer.draw(screen)
-
     # generate customers and give logic for when clicked
     def populate_customers_and_logic(customer_queue):
         # this bit of code generates customers and customer interactivity
         for i in range(0, len(customer_queue.customer_list)):
             current_customer = customer_queue.customer_list[i]
             if current_customer:
-                display_customer(current_customer, WIN)
+                display.display_customer(current_customer, WIN)
                 if current_customer.switch: # if customer is toggled by player
-                    display_customer_order_as_text_button(current_customer, WIN)
+                    display.display_customer_order_as_text_button(current_customer, WIN)
                     if current_customer.clicked:
                         interaction.place_customer_order(current_customer.order, i)
 
@@ -121,11 +96,11 @@ def main():
         populate_customers_and_logic(customer_queue)
 
         # Available Ingredients
-        gin_button = draw_ingredient_button(Gin(), 10, 300, WIN)
-        vodka_button = draw_ingredient_button(Vodka(), 60, 300, WIN)
-        vermouth_button = draw_ingredient_button(Vermouth(), 110, 300, WIN)
-        tonic_button = draw_ingredient_button(Tonic(), 160, 300, WIN)
-        ice_button = draw_ingredient_button(Ice(), 210, 300, WIN)
+        gin_button = display.draw_ingredient_button(Gin(), 10, 300, WIN)
+        vodka_button = display.draw_ingredient_button(Vodka(), 60, 300, WIN)
+        vermouth_button = display.draw_ingredient_button(Vermouth(), 110, 300, WIN)
+        tonic_button = display.draw_ingredient_button(Tonic(), 160, 300, WIN)
+        ice_button = display.draw_ingredient_button(Ice(), 210, 300, WIN)
 
         ingredient_buttons = [gin_button, vodka_button, vermouth_button, tonic_button, ice_button]
         interaction.ingredient_button_clicked(ingredient_buttons) # if ingredient is clicked.
@@ -136,14 +111,17 @@ def main():
 
         interaction.glass_button_clicked(glasses, glass_buttons)
         
-        #show drinks created by player
-        display_drinks_created(interaction.drinks_created, WIN)
+        # images of the cocktails that the user has made.
+        list_of_drinks_images = interaction.convert_made_coctails_to_images(cocktail_ingredients_map, cocktail_name_map, interaction.drinks_created)
+        
+        # show drinks created by player
+        display.display_drinks_created(list_of_drinks_images, WIN)
 
         # has the order been satisfied? if so then:..
         interaction.order_satisfied(customer_queue)
 
         # print the total on the page
-        display_score(interaction.money_made, WIN) 
+        display.display_score(interaction.money_made, WIN) 
 
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
