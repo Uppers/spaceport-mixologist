@@ -20,8 +20,6 @@ class Customer(Button, Order):
         Button.__init__(self, x, y, image= pygame.image.load(self.face).convert_alpha(), scale=scale)
         Order.__init__(self)
 
-
-
     def _time_elapsed(self):
         time_now = datetime.now()
         time_delta = time_now-self._time_at_init

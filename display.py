@@ -21,7 +21,7 @@ class Display():
 
     def display_customer_order_as_text_button(self, current_customer, screen):
         # (when customer is toggled) the customer order is displayed
-        text = TextButton(10,10, current_customer.order_for_display)
+        text = TextButton(340,360, current_customer.order_for_display)
         text.draw(screen)
 
     def display_customer(self, current_customer, screen):

@@ -12,7 +12,7 @@ class Order():
 
     def _order_for_display(self): # how the order will be written onscreen
         if self.order:
-            opening_text = "Hello, please may I have:"
+            opening_text = ""
             drinks_dict = self._simplify_order()
             length_dict = len(drinks_dict)-1
             i = 0
