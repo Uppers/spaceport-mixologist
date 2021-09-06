@@ -31,12 +31,6 @@ def main():
     #set up for fps
     clock = pygame.time.Clock()
 
-    # these are the coordinates of the 3 spaces on a bar that a customer can appear
-    #customer_coordinates = ((200, 150), (400, 150), (600, 150))
-
-    # automatically initialise customers in their location on the bar
-    #customer_queue = Queue(customer_coordinates)
-
     interaction = Interaction()
 
     display = Display()
@@ -68,21 +62,6 @@ def main():
         "Vesper Martini": VesperMartini(),
     }
 
-    # generate customers and give logic for when clicked
-#    def populate_customers_and_logic(customer_queue):
-#        # this bit of code generates customers and customer interactivity
-#        for i in range(0, len(customer_queue.customer_list)):
-#            current_customer = customer_queue.customer_list[i]
-#            #current_customer = customer_as_sprite_group.sprites()[i]
-#            if current_customer:
-#                display.display_customer(current_customer, WIN)
-#                print(current_customer.names)
-#                if current_customer.switch: # if customer is toggled by player
-#                    display.display_customer_order_as_text_button(current_customer, WIN)
-#                    #print("on")
-#                    if current_customer.clicked:
-#                        interaction.place_customer_order(current_customer.order, i)
-#                        #print("Click")
 
     # sprite groups
     customer_as_sprite_group = pygame.sprite.Group()
@@ -125,7 +104,7 @@ def main():
 
         pos = pygame.mouse.get_pos()
         for customer in customer_as_sprite_group:
-            if customer.rect.collidepoint(pos):
+            if customer.rect.collidepoint(pos) and customer.mood != "attack":
                 if pygame.mouse.get_pressed()[0] == 1 and count_clicks == 0:
                     count_clicks = 1 # to prevent multiple clicks
                     if customer == selected_customer:
@@ -135,6 +114,15 @@ def main():
                 # mousebutton up allows for clicks again
                 if pygame.mouse.get_pressed()[0] == 0:
                     count_clicks = 0
+            if customer.rect.collidepoint(pos) and customer.mood == "attack":
+                if pygame.mouse.get_pressed()[0] == 1:
+                    if customer == selected_customer:
+                        interaction.customer_not_served_in_time()
+                        customer.attacking_customer_destroyed = True
+                        selected_customer = None 
+                    else:
+                        interaction.customer_not_served_in_time()
+                        customer.attacking_customer_destroyed = True
 
         
         # if a customer has been selected and not deleted then display their order
@@ -143,18 +131,6 @@ def main():
             interaction.place_customer_order(selected_customer)
         else: # if a customer has been deleted from the group then they should no longer be selected.
             selected_customer = None
-            #print(selected_customer)
-
-        
-        # Customer Interaction 
-        #customer_queue.update_customer_list()
-
-        # this bit of code checks for a customer who left because they werent served in time.
-        # it then resets all the parameters associated with serving that customer.
-        #interaction.customer_not_served_in_time(customer_queue)
-
-        # this bit of code generates customers and customer interactivity
-        #populate_customers_and_logic(customer_queue)
 
         # Available Ingredients
         gin_button = display.draw_ingredient_button(Gin(), 10, 300, WIN)

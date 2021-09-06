@@ -33,6 +33,7 @@ class CustomerAsSprite(pygame.sprite.Sprite, Order):
         #self.rect = self.image.get_rect()
         #self.rect.center = [x, y]
         self.counter = 0
+        self.attacking_customer_destroyed = False
 
     def _time_elapsed(self):
         time_now = datetime.now()
@@ -81,6 +82,9 @@ class CustomerAsSprite(pygame.sprite.Sprite, Order):
         self.move_counter += 2
         if self.mood == "attack":
             self.rect.y += 1
+            if self.attacking_customer_destroyed:
+                self.explosion_update()
+                #self.kill()
         elif abs(self.move_counter) >75:
             self.move_direction *= -1
             self.move_counter *= self.move_direction
@@ -90,7 +94,7 @@ class CustomerAsSprite(pygame.sprite.Sprite, Order):
         # if collides with earth then death.    
         if pygame.sprite.spritecollide(self, self.earth_group, False, pygame.sprite.collide_mask):
             self.explosion_update()
-            #self.kill()
+            # need to set up explosion noises
             #explosion_fx.play()
             #explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
             #explosion_group.add(explosion)
