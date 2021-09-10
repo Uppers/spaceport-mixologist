@@ -4,7 +4,6 @@ import cv2
 import os
 import random
 from glass import Glass
-from queue import Queue 
 from button import Button
 from ingredient import Gin, Ice, Tonic, Vermouth, Vodka
 from interaction import Interaction
@@ -117,8 +116,8 @@ def main():
             if customer.rect.collidepoint(pos) and customer.mood == "attack":
                 if pygame.mouse.get_pressed()[0] == 1:
                     if customer == selected_customer:
-                        interaction.customer_not_served_in_time()
                         customer.attacking_customer_destroyed = True
+                        interaction.customer_not_served_in_time()
                         selected_customer = None 
                     else:
                         interaction.customer_not_served_in_time()
