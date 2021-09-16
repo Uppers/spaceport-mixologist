@@ -1,4 +1,5 @@
 import pygame
+import os
 
 class Button():
     """
@@ -44,7 +45,8 @@ class Button():
 class TextButton(Button):
     """This makes text into clickable buttons"""
 
-    def __init__(self, x, y, text, font = "freesansbold.ttf", font_size=20):
-        self.font = pygame.font.Font(font, font_size) # set font 
-        self.image = self.font.render(text,True, pygame.Color("Black"), pygame.Color("White")) # render the text in a black colour with a white background
+    def __init__(self, x, y, text, font_size=10, font_colour = pygame.Color("Black"), background_colour = pygame.Color("White")):
+        self.font = os.path.join("Assets", "fonts","8-BIT WONDER.TTF")
+        self.font = pygame.font.Font(self.font, font_size) # set font 
+        self.image = self.font.render(text,True, font_colour, background_colour) # render the text in a black colour with a white background
         super().__init__(x,y,self.image)

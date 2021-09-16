@@ -1,3 +1,4 @@
+import pygame
 from button import Button, TextButton
 
 class Display():
@@ -10,7 +11,7 @@ class Display():
             drink_button.draw(screen)
 
     def display_score(self, money_made, screen): # displays amount of money the player has made on screen
-        total_amount_spent = TextButton(650,270, str(money_made))
+        total_amount_spent = TextButton(650,270, str(money_made),font_size=20, background_colour=pygame.Color("Gold"))
         total_amount_spent.draw(screen)
 
     # makes the buttons for the ingredients such as ice, vodka etc.

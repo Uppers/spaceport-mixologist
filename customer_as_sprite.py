@@ -94,6 +94,8 @@ class CustomerAsSprite(pygame.sprite.Sprite, Order):
         # if collides with earth then death.    
         if pygame.sprite.spritecollide(self, self.earth_group, False, pygame.sprite.collide_mask):
             self.explosion_update()
+            # set the game over logic
+            
             # need to set up explosion noises
             #explosion_fx.play()
             #explosion = Explosion(self.rect.centerx, self.rect.centery, 2)

@@ -1,7 +1,3 @@
-from os import kill
-from customer import Customer
-
-
 class Interaction():
     """ This is the class for functions and variables relating to user interaction with the game."""
 
