@@ -212,6 +212,11 @@ class Interaction():
         for drink in drinks_served:
             revenue += drink.price # get the price of each drink and add it to the total
         return revenue
+
+    def seconds_difference(self, first_time, second_time):
+        if first_time is not None and second_time is not None:
+            delta = second_time-first_time
+            return delta.total_seconds()
     
     
 

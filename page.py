@@ -2,6 +2,7 @@ import pygame
 import cv2
 import os
 import random
+import datetime
 from glass import Glass
 from button import Button, TextButton
 from ingredient import Gin, Ice, Tonic, Vermouth, Vodka
@@ -34,10 +35,88 @@ class Page():
             # do something 
             pass
 
-class GameOver(Page):
+class GameOverPage(Page):
+    """ Only go here after the game ends """
     def __init__(self, state_obj):
         super().__init__(state_obj)
-        pass
+        self.earth_image = pygame.image.load(os.path.join("Assets","the_earth.png"))
+        self.page_header_font = pygame.font.Font(os.path.join("Assets", "fonts","8-BIT WONDER.TTF"), 30)
+        self.table_header_font = pygame.font.Font(os.path.join("Assets", "fonts","8-BIT WONDER.TTF"), 20)
+        self.content_font = pygame.font.Font(os.path.join("Assets", "fonts","8-BIT WONDER.TTF"), 10)
+        self.header_text = self.page_header_font.render('HIGH SCORES', True, pygame.Color("White"), pygame.Color("Black"))
+        self.rank_header_text = self.table_header_font.render('Rank', True, pygame.Color("White"), pygame.Color("Black"))
+        self.name_header_text = self.table_header_font.render('IG Handle', True, pygame.Color("White"), pygame.Color("Black"))
+        self.score_header_text = self.table_header_font.render('Score', True, pygame.Color("White"), pygame.Color("Black"))
+        self.header_text_rect = self.header_text.get_rect()
+        self.rank_header_text_rect = self.rank_header_text.get_rect()
+        self.name_header_text_rect = self.name_header_text.get_rect()
+        self.score_header_text_rect = self.score_header_text.get_rect()
+        self.header_text_rect.center = (int(self.SCREEN_WIDTH/2), int(self.SCREEN_HEIGHT*(1/3))-50) # placing the header on screen
+        self.rank_column_x = int(self.SCREEN_WIDTH/2)-150
+        self.name_column_x = int(self.SCREEN_WIDTH/2)
+        self.score_column_x = int(self.SCREEN_WIDTH/2)+150
+        self.table_header_row_y = int(self.SCREEN_HEIGHT*(1/3))
+        self.rank_header_text_rect.center = (self.rank_column_x, self.table_header_row_y)
+        self.name_header_text_rect.center = (self.name_column_x, self.table_header_row_y)
+        self.score_header_text_rect.center = (self.score_column_x, self.table_header_row_y)
+        self.high_scores = (
+            (1, "@pretty_girl", 10001), 
+            (2, "@gym_bro", 9999), 
+            (3, "@top_influencer", 8765),
+            (4, "@hanny_loves_oranges", 6092),
+            (5, "@peanut_enjoyer", 5432),
+            ) # these are fictional high scores to add to the high scores page. 
+
+    def high_score_text_generator(self):
+        column_x = (self.rank_column_x, self.name_column_x, self.score_column_x) # placed in array so they can be looped through
+        for r in range(0,len(self.high_scores)):
+            for c in range(0, len(self.high_scores[r])):
+                item = self.high_scores[r][c] # unpack the high score data
+                text = self.content_font.render(str(item), True, pygame.Color("White"), pygame.Color("Black"))
+                rect = text.get_rect()
+                rect.center = (column_x[c], self.table_header_row_y+30*(r+1))
+                self.WIN.blit(text, rect)
+
+    def your_score_text_generator(self):
+        data = (11, "Your score:", self.state.score)
+        column_x = (self.rank_column_x, self.name_column_x, self.score_column_x)
+        for c in range(0,len(data)):
+            text = self.content_font.render(str(data[c]), True, pygame.Color("Gold"), pygame.Color("Black"))
+            rect = text.get_rect()
+            rect.center = (column_x[c], self.table_header_row_y+180)
+            self.WIN.blit(text, rect)
+
+    def page_loop(self):
+        self.running = True
+        while self.running:
+            # the background
+            self.WIN.fill((255,255,255))
+            self.WIN.blit(self.background_image,(0,0))
+            
+            # the earth as an image rather than a sprite
+            self.WIN.blit(self.earth_image, (357, 1800))
+
+            # blit the header to screen
+            self.WIN.blit(self.header_text, self.header_text_rect) # HIGH SCORES
+            self.WIN.blit(self.rank_header_text, self.rank_header_text_rect) # Rank
+            self.WIN.blit(self.name_header_text, self.name_header_text_rect) # IG Handle
+            self.WIN.blit(self.score_header_text, self.score_header_text_rect) # Score
+            self.high_score_text_generator()
+            self.your_score_text_generator()
+
+
+            # event handling, gets all event from the event queue
+            for event in pygame.event.get():
+                # only do something if the event is of type QUIT
+                if event.type == pygame.QUIT:
+                    #change the value to False, to exit the main loop
+                    self.running = False
+                    self.state.running = False
+            #update the screen 
+            pygame.display.update()
+            # fps
+            self.clock.tick(30)
+
 
 class MenuPage(Page):
     def __init__(self, state_obj):
@@ -66,9 +145,6 @@ class MenuPage(Page):
             if play_game_button.switch:
                 self.state.curr_state = self.state.game_state # if the start game button is pressed
                 self.running = False 
-
-            # the coordinates of the mouse
-            #pos = pygame.mouse.get_pos()
 
             # event handling, gets all event from the event queue
             for event in pygame.event.get():
@@ -112,6 +188,7 @@ class GamePage(Page):
         self.count_clicks = 0
         self.count_loops = 0
         self.running = False
+        self.explosion_timestamp = None
         self.cocktail_ingredients_map = {
             "Gin and Tonic": self.gin_and_tonic_ingredients,
             "Vesper Martini": self.vesper_martini_ingredients,
@@ -130,10 +207,17 @@ class GamePage(Page):
             low_range-=121 # each row has progressively less patience so that when the row appears at...
             high_range-=121 # ... the top of the screen it has the same amount of patience.
             for item in range(10):
-                customer = CustomerAsSprite(150+item*50, -2960+row*30, round(random.uniform(low_range,high_range)), self.earth_as_group )
+                customer = CustomerAsSprite(150+item*50, -2960+row*30, round(random.uniform(low_range,high_range)), self.earth_as_group, self.state)
                 self.customer_as_sprite_group.add(customer)
 
-    
+    def checkCollision(self, customer_sprite, earth_sprite):
+        # checks if the earth has been destroyed by a collision with customer
+        # https://stackoverflow.com/questions/16227616/how-to-use-sprite-collide-in-pygame
+        col = pygame.sprite.collide_rect(customer_sprite, earth_sprite)
+        if col == True and self.explosion_timestamp==None:
+            self.explosion_timestamp = datetime.datetime.now()
+
+
     def page_loop(self):
         self.running = True
         while self.running:
@@ -150,9 +234,12 @@ class GamePage(Page):
             self.customer_as_sprite_group.update()
             self.customer_as_sprite_group.draw(self.WIN)
 
+
             pos = pygame.mouse.get_pos()
             for customer in self.customer_as_sprite_group:
                 self.interaction.customer_obj = customer
+                if self.explosion_timestamp is None: # checks that there has not already been a collision between customer and earth
+                    self.checkCollision(customer, self.earth) # check if a collision has happened and set the timestamp.
                 # get the order from the customer you clicked on.
                 if customer.rect.collidepoint(pos) and customer.mood != "attack":
                     if pygame.mouse.get_pressed()[0] == 1 and self.count_clicks == 0:
@@ -167,12 +254,11 @@ class GamePage(Page):
                 # clicking on attacking customer to destroy them before they hit earth
                 if customer.rect.collidepoint(pos) and customer.mood == "attack":
                     if pygame.mouse.get_pressed()[0] == 1:
-                        if customer == self.selected_customer:
+                        if customer == self.selected_customer: # if this is the customer you are currently serving
                             self.interaction.customer_not_served_in_time()
                             customer.attacking_customer_destroyed = True
                             self.selected_customer = None 
-                        else:
-                            #self.interaction.customer_not_served_in_time()
+                        else: # if not the customer you are currently serving
                             customer.attacking_customer_destroyed = True
 
             
@@ -214,6 +300,14 @@ class GamePage(Page):
 
             # update the state with the score
             self.state.score = self.interaction.money_made
+
+            # this is needed in order to give time for the explosion animation to happen when customer hits earth.
+            time_delta = self.interaction.seconds_difference(self.explosion_timestamp, datetime.datetime.now())
+            if time_delta is not None:
+                print(time_delta)
+                if time_delta>1:
+                    self.state.curr_state = self.state.game_over_state
+                    self.running = False
 
             # event handling, gets all event from the event queue
             for event in pygame.event.get():

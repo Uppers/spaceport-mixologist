@@ -3,9 +3,10 @@ import random
 from datetime import datetime
 from order import Order
 
+
 class CustomerAsSprite(pygame.sprite.Sprite, Order):
 
-    def __init__(self, x, y, patience_in_seconds, earth_group):
+    def __init__(self, x, y, patience_in_seconds, earth_group, state_obj):
         pygame.sprite.Sprite.__init__(self)
         self.names = ["emma", "gary", "jane", "terry"]
         self._name_chosen = random.randint(0,3)
@@ -34,6 +35,7 @@ class CustomerAsSprite(pygame.sprite.Sprite, Order):
         #self.rect.center = [x, y]
         self.counter = 0
         self.attacking_customer_destroyed = False
+        self.state = state_obj
 
     def _time_elapsed(self):
         time_now = datetime.now()
@@ -75,7 +77,6 @@ class CustomerAsSprite(pygame.sprite.Sprite, Order):
         if self.index >= len(self.explosion_images) -1 and self.counter >= explosion_speed:
             self.kill()
 
-
     def update(self):
         self._update_mood()
         self.rect.x += self.move_direction
@@ -94,8 +95,10 @@ class CustomerAsSprite(pygame.sprite.Sprite, Order):
         # if collides with earth then death.    
         if pygame.sprite.spritecollide(self, self.earth_group, False, pygame.sprite.collide_mask):
             self.explosion_update()
+            #self.state.curr_state = self.state.game_over_state
             # set the game over logic
-            
+            #game_over = True
+            #return game_over
             # need to set up explosion noises
             #explosion_fx.play()
             #explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
