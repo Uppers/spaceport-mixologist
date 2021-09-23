@@ -1,5 +1,5 @@
 import pygame
-from button import Button, TextButton
+from Game.button import Button, TextButton
 
 class Display():
 

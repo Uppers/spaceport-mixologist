@@ -1,7 +1,7 @@
 import pygame 
 import random 
 from datetime import datetime
-from order import Order
+from Game.order import Order
 
 
 class CustomerAsSprite(pygame.sprite.Sprite, Order):

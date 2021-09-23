@@ -1,4 +1,4 @@
-from cocktail import GinAndTonic, VesperMartini
+from Game.cocktail import GinAndTonic, VesperMartini
 import random
 
 

@@ -1,6 +1,6 @@
 import pygame 
-from state import State
-from page import GamePage, MenuPage
+from Game.state import State
+from Game.page import GamePage, MenuPage
 
 def main():
 

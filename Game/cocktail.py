@@ -1,6 +1,6 @@
 import os
 import pygame
-from ingredient import Gin, Vodka, Vermouth, Ice, Tonic
+from Game.ingredient import Gin, Vodka, Vermouth, Ice, Tonic
 
 class Cocktail():
 

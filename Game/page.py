@@ -3,14 +3,14 @@ import cv2
 import os
 import random
 import datetime
-from glass import Glass
-from button import Button, TextButton
-from ingredient import Gin, Ice, Tonic, Vermouth, Vodka
-from cocktail import GinAndTonic, VesperMartini
-from customer_as_sprite import CustomerAsSprite
-from earth import Earth
-from interaction import Interaction
-from display import Display
+from Game.glass import Glass
+from Game.button import Button, TextButton
+from Game.ingredient import Gin, Ice, Tonic, Vermouth, Vodka
+from Game.cocktail import GinAndTonic, VesperMartini
+from Game.customer_as_sprite import CustomerAsSprite
+from Game.earth import Earth
+from Game.interaction import Interaction
+from Game.display import Display
 
 
 class Page():
