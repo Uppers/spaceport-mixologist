@@ -11,6 +11,10 @@ from Game.customer_as_sprite import CustomerAsSprite
 from Game.earth import Earth
 from Game.interaction import Interaction
 from Game.display import Display
+from Transactions.transaction import Transaction 
+from Transactions.utility import Utility
+from Transactions.private_info import account1_mnemonic
+
 
 
 class Page():
@@ -122,6 +126,7 @@ class MenuPage(Page):
     def __init__(self, state_obj):
         super().__init__(state_obj)
         self.font = os.path.join("Assets", "fonts","8-BIT WONDER.TTF")
+        self.is_pressed = False
 
 
     def page_loop(self):
@@ -135,16 +140,21 @@ class MenuPage(Page):
 
             # TEXT
             title = TextButton(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2)-100, "SPACEPORT MIXOLOGIST", font_size = 30, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
-            play_game_button = TextButton(int(self.SCREEN_WIDTH/2)-100, int(self.SCREEN_HEIGHT/2), "START GAME", font_size=20, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
-            
-            
             title.draw(self.WIN)
-            play_game_button.draw(self.WIN)
             
-
-            if play_game_button.switch:
+            if self.is_pressed:
+                play_game_button = TextButton(int(self.SCREEN_WIDTH/2)-100, int(self.SCREEN_HEIGHT/2), "LOADING...", font_size=20, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
+                play_game_button.draw(self.WIN)
                 self.state.curr_state = self.state.game_state # if the start game button is pressed
                 self.running = False 
+            else:
+                play_game_button = TextButton(int(self.SCREEN_WIDTH/2)-100, int(self.SCREEN_HEIGHT/2), "START GAME", font_size=20, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
+                play_game_button.draw(self.WIN)
+            
+            if play_game_button.switch:
+                self.is_pressed = True
+            
+
 
             # event handling, gets all event from the event queue
             for event in pygame.event.get():
@@ -197,6 +207,10 @@ class GamePage(Page):
             "Gin and Tonic": GinAndTonic(),
             "Vesper Martini": VesperMartini(),
         }
+        self.game_start_timestamp = datetime.datetime.now()
+        self.utility = Utility()
+        self.account_details = self.utility.account_details(account1_mnemonic)
+        self.transactions = Transaction(self.account_details['pk'], self.account_details['sk'], self.state.player_pk)
 
 
     def create_customers_as_sprite(self):
@@ -293,7 +307,8 @@ class GamePage(Page):
 
             # has the order been satisfied? if so then:..
             #interaction.order_satisfied(customer_queue)
-            self.interaction.order_satisfied()
+            if self.interaction.order_satisfied():
+                self.transactions.send_transaction(self.interaction.revenue_from_most_recent, self.game_start_timestamp)
 
             # print the total on the page
             self.display.display_score(self.interaction.money_made, self.WIN) 

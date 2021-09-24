@@ -1,9 +1,12 @@
+
+
 class Interaction():
     """ This is the class for functions and variables relating to user interaction with the game."""
 
     def __init__(self):
         self.customer_obj = None
-        #self.customer_queue_number = None 
+        #self.customer_queue_number = None
+        self.revenue_from_most_recent = 0 
         self.customer_order = []
         self.drink_created = []
         self.drinks_created = []
@@ -19,13 +22,8 @@ class Interaction():
                                 "Tonic":True,
                                 "Ice":True,
                                 }
+        
 
-
-    #def place_customer_order(self, current_customer_order, customer_queue_number):
-    #    # the order of the customer (who is currently selected) is saved to a variable.
-    #    self._create_customer_drinks_order(current_customer_order)
-    #    # the position of the customer on the bar is saved 
-    #    self.customer_queue_number = customer_queue_number
 
     def place_customer_order(self, customer_sprite):
         # the order of the customer (who is currently selected) is saved to a variable.
@@ -110,16 +108,6 @@ class Interaction():
                 image = cocktail_name_map[key].get_image()
                 return image
 
-#    def customer_not_served_in_time(self, customer_queue):
-#        # this bit of code checks for a customer who left because they werent served in time.
-#        # it then resets all the parameters associated with serving that customer.
-#        if self.customer_queue_number is not None: 
-#            if customer_queue.customer_list[self.customer_queue_number] is None:
-#                # reset everything
-#                self.customer_order = [] 
-#                self.drink_created = []
-#                self.drinks_created = []
-#                self.glass_clickable = dict.fromkeys(self.glass_clickable, True)
 
     def customer_not_served_in_time(self):
         # this bit of code checks for a customer who left because they werent served in time.
@@ -149,13 +137,6 @@ class Interaction():
             ingredients.append(ingredient_name)
         return sorted(ingredients)
 
-#    def order_satisfied(self, customer_queue):
-#        # has the order been satisfied? if so then:..
-#        if self._is_same_2d_lists(self.drinks_created, self.customer_order):
-#            drinks_served = self._pop_customer(customer_queue) # remove customer from queue and return what drinks were served.
-#            self.money_made += self._calculate_earnings(drinks_served) # calculate the earnings and add to total.
-#            self.drinks_created = [] 
-#            self.customer_order = []
 
     def order_satisfied(self):
         # has the order been satisfied? if so then:..
@@ -168,6 +149,7 @@ class Interaction():
             kill_this = self.customer_obj
             self.customer_obj = None
             kill_this.kill()
+            return True
 
     # used to check the customer has recieved their order
     # compares the cocktails made by the barista 
@@ -194,13 +176,6 @@ class Interaction():
                 sortedtwodlist.append(list.sort())
             return sortedtwodlist
 
-#    # takes a customer that has been served from queue and returns the drinks they ordered.
-#    def _pop_customer(self, customer_queue): 
-#        customer_served = customer_queue.customer_list.pop(self.customer_queue_number) # take the serviced customer out of the queue.
-#        drinks_served = customer_served.order # a list of drinks ordered
-#        customer_queue.customer_list.insert(self.customer_queue_number, None) # or the _fill_empty_list_space() queue function will throw an index not found error
-#        return drinks_served
-
     # takes a customer that has been served from queue and returns the drinks they ordered.
     def _pop_customer(self):
         drinks_served = self.customer_obj.order 
@@ -211,6 +186,7 @@ class Interaction():
         revenue = 0
         for drink in drinks_served:
             revenue += drink.price # get the price of each drink and add it to the total
+        self.revenue_from_most_recent = revenue
         return revenue
 
     def seconds_difference(self, first_time, second_time):
