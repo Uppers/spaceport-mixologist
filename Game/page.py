@@ -11,6 +11,7 @@ from Game.customer_as_sprite import CustomerAsSprite
 from Game.earth import Earth
 from Game.interaction import Interaction
 from Game.display import Display
+from Game.textbox import Textbox
 from Transactions.transaction import Transaction 
 from Transactions.utility import Utility
 from Transactions.private_info import account1_mnemonic
@@ -38,6 +39,62 @@ class Page():
         while self.running:
             # do something 
             pass
+
+class CreatePlayer(Page):
+    """ This is the page where you add the public address of your account """
+    def __init__(self, state_obj):
+        super().__init__(state_obj)
+        self.font = os.path.join("Assets", "fonts","8-BIT WONDER.TTF")
+        self.public_key_box = Textbox(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2),600, 50, 10, 58, "YOUR PUBLIC KEY") 
+        self.ig_handle_box = Textbox(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2)+100,(600/58)*20, 50, 10, 20, "IG HANDLE / USERNAME") 
+        self.submit_button = TextButton(self.SCREEN_WIDTH-200, int(self.SCREEN_HEIGHT/2)+100, "SUBMIT", font_colour= pygame.Color("Grey"), background_colour= pygame.Color("Black"), font_size=20)
+        self.public_key_box.active = True
+
+    def page_loop(self):
+        self.running = True
+        while self.running:
+             # the background
+            self.WIN.fill((255,255,255))
+            self.WIN.blit(self.background_image,(0,0))
+
+            # TEXT
+            title = TextButton(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2)-100, "ENTER DETAILS", font_size = 30, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
+            title.draw(self.WIN)
+
+            # Add public key
+            self.public_key_box.write_text(self.WIN)#, self, self.state)
+            self.public_key_box.draw_box(self.WIN)
+
+            # Add IG Handle / Username
+            self.ig_handle_box.write_text(self.WIN)#, self, self.state)
+            self.ig_handle_box.draw_box(self.WIN)
+
+            # Add Text Button for Submitting Data
+            if len(self.public_key_box.player_input)==58 and len(self.ig_handle_box.player_input)>0: # button is clickable when there are valid inputs
+                self.submit_button.change_colour(colour=pygame.Color("Gold")) # when button is clickable the colour changes
+                self.submit_button.draw(self.WIN)
+                if self.submit_button.clicked:
+                    print("clicked")
+            else:
+                self.submit_button.change_colour(colour=pygame.Color("Grey"))
+                self.submit_button.draw(self.WIN)
+
+
+
+            # event handling, gets all event from the event queue
+            for event in pygame.event.get():
+                # only do something if the event is of type QUIT
+                if event.type == pygame.QUIT:
+                    #change the value to False, to exit the main loop
+                    self.running = False
+                    self.state.running = False
+
+            #update the screen 
+            pygame.display.update()
+            # fps
+            self.clock.tick(30)
+        
+
 
 class GameOverPage(Page):
     """ Only go here after the game ends """
@@ -141,8 +198,9 @@ class MenuPage(Page):
             # TEXT
             title = TextButton(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2)-100, "SPACEPORT MIXOLOGIST", font_size = 30, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
             title.draw(self.WIN)
-            
+
             if self.is_pressed:
+                # if the START GAME button is pressed, if there is a delay in switching to the game play page  
                 play_game_button = TextButton(int(self.SCREEN_WIDTH/2)-100, int(self.SCREEN_HEIGHT/2), "LOADING...", font_size=20, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
                 play_game_button.draw(self.WIN)
                 self.state.curr_state = self.state.game_state # if the start game button is pressed
@@ -150,9 +208,16 @@ class MenuPage(Page):
             else:
                 play_game_button = TextButton(int(self.SCREEN_WIDTH/2)-100, int(self.SCREEN_HEIGHT/2), "START GAME", font_size=20, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
                 play_game_button.draw(self.WIN)
+
+            create_player_button = TextButton(int(self.SCREEN_WIDTH/2)-130, int(self.SCREEN_HEIGHT/2)+50, "CREATE PLAYER", font_size=20, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
+            create_player_button.draw(self.WIN)
             
             if play_game_button.switch:
                 self.is_pressed = True
+
+            if create_player_button.switch:
+                self.state.curr_state = self.state.create_player_state # if the start game button is pressed
+                self.running = False 
             
 
 

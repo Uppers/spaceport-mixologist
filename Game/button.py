@@ -48,5 +48,11 @@ class TextButton(Button):
     def __init__(self, x, y, text, font_size=10, font_colour = pygame.Color("Black"), background_colour = pygame.Color("White")):
         self.font = os.path.join("Assets", "fonts","8-BIT WONDER.TTF")
         self.font = pygame.font.Font(self.font, font_size) # set font 
-        self.image = self.font.render(text,True, font_colour, background_colour) # render the text in a black colour with a white background
+        self.text = text
+        self.font_colour = font_colour
+        self.background_colour = background_colour
+        self.image = self.font.render(self.text,True, self.font_colour, background_colour) # render the text in a black colour with a white background
         super().__init__(x,y,self.image)
+
+    def change_colour(self, colour):
+        self.image = self.font.render(self.text,True, colour, self.background_colour)

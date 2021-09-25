@@ -1,4 +1,4 @@
-from Game.page import MenuPage, GamePage, GameOverPage
+from Game.page import MenuPage, GamePage, GameOverPage, CreatePlayer
 from Transactions.private_info import player
 
 class State():
@@ -7,6 +7,7 @@ class State():
         self.username = "@tom_is_playing" # players username
         self.player_pk = player
         self.score = 0
+        self.create_player_state = CreatePlayer(self)
         self.menu_state = MenuPage(self)
         self.game_state = GamePage(self)
         self.game_over_state = GameOverPage(self)
