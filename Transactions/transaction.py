@@ -1,10 +1,9 @@
 import os
-import sys
 from datetime import datetime
 from Transactions.utility import Utility
 from algosdk.future.transaction import AssetTransferTxn
 from algosdk.error import AlgodHTTPError
-from Transactions.private_info import account1_mnemonic, account2_mnemonic, player_mnemonic
+
 
 
 class Transaction():
@@ -65,41 +64,3 @@ class QueryTransaction():
             return False
         return True  
 
-#from Transactions.utility import Utility
-
-
-#utility = Utility()
-
-#sender_account = utility.account_details(account1_mnemonic)
-#sender_account2 = utility.account_details(account2_mnemonic)
-#sender_player = utility.account_details(player_mnemonic)
-
-#transaction = Transaction(sender_account['pk'], sender_account['sk'], sender_player['pk'])
-
-#print(transaction)
-
-#sender_account = 1
-#recipient_account = 3
-
-# account public keys
-#sender_pk = utility.account_credentials[sender_account]['pk']
-#recipient_pk = utility.account_credentials[recipient_account]['pk']
-
-# set up the transaction
-
-
-# sender account secret key
-#sender_sk = utility.account_credentials[sender_account]['sk']
-
-# sign the transfer transaction 
-#stxn = txn.sign(sender_sk)
-
-# send the transaction 
-#txid = utility.algod_client.send_transaction(stxn)
-#print(txid)
-
-# wait for the transaction to be confirmed
-#utility.wait_for_confirmation(txid)
-
-# the balance should have increased by 10
-#utility.print_asset_holding(recipient_pk, ASSET_ID)

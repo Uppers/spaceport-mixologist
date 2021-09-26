@@ -3,6 +3,9 @@ import cv2
 import os
 import random
 import datetime
+import json
+
+from pygame import draw
 from Game.glass import Glass
 from Game.button import Button, TextButton
 from Game.ingredient import Gin, Ice, Tonic, Vermouth, Vodka
@@ -120,9 +123,15 @@ class CreatePlayer(Page):
                 not_opted_in_warning.draw(self.WIN)
             elif self._submit_button_flag and self._account_doesnt_exist_flag == False and self._account_not_opted_in_flag == False:
                 # save the account details and re-route to the main menu
-                print("account details saved")
+                account_info = {"pk":self.public_key_box.player_input, "ig":self.ig_handle_box.player_input}
+                self._utility.write_to_file(os.path.join("Transactions","account_info.txt"), json.dumps(account_info))
 
 
+            back_button = TextButton(20, 10, "Back", font_size = 10, font_colour=pygame.Color("Grey"), background_colour=pygame.Color("Black"))
+            back_button.draw(self.WIN)
+            if back_button.clicked:
+                self.state.curr_state = self.state.menu_state
+                self.running = False
 
 
             # event handling, gets all event from the event queue
@@ -183,7 +192,7 @@ class GameOverPage(Page):
                 self.WIN.blit(text, rect)
 
     def your_score_text_generator(self):
-        data = (11, "Your score:", self.state.score)
+        data = (11, self.state.account_info['ig'], self.state.score)
         column_x = (self.rank_column_x, self.name_column_x, self.score_column_x)
         for c in range(0,len(data)):
             text = self.content_font.render(str(data[c]), True, pygame.Color("Gold"), pygame.Color("Black"))
@@ -317,7 +326,7 @@ class GamePage(Page):
         self.game_start_timestamp = datetime.datetime.now()
         self.utility = Utility()
         self.account_details = self.utility.account_details(account1_mnemonic)
-        self.transactions = Transaction(self.account_details['pk'], self.account_details['sk'], self.state.player_pk)
+        self.transactions = Transaction(self.account_details['pk'], self.account_details['sk'], self.state.account_info['pk'])
 
 
     def create_customers_as_sprite(self):

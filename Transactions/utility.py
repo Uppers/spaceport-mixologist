@@ -80,3 +80,11 @@ class Utility():
     def read_from_file(self, filename):
         with open(filename, 'r') as f:
             return f.read()
+
+    # reads json from a text file 
+    def read_json_from_file(self, filename):
+        try:
+            f = open(filename, 'r')
+            return json.loads(f.read())
+        except:
+            return {'pk': "", "sk": ""}
