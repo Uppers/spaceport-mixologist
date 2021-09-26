@@ -12,9 +12,10 @@ from Game.earth import Earth
 from Game.interaction import Interaction
 from Game.display import Display
 from Game.textbox import Textbox
-from Transactions.transaction import Transaction 
+from Transactions.transaction import Transaction, QueryTransaction
 from Transactions.utility import Utility
 from Transactions.private_info import account1_mnemonic
+from Transactions.queries import Queries
 
 
 
@@ -45,10 +46,18 @@ class CreatePlayer(Page):
     def __init__(self, state_obj):
         super().__init__(state_obj)
         self.font = os.path.join("Assets", "fonts","8-BIT WONDER.TTF")
-        self.public_key_box = Textbox(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2),600, 50, 10, 58, "YOUR PUBLIC KEY") 
+        self.public_key_box = Textbox(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2),600, 50, 10, 58, "YOUR PUBLIC KEY", is_uppercase= True) 
         self.ig_handle_box = Textbox(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2)+100,(600/58)*20, 50, 10, 20, "IG HANDLE / USERNAME") 
         self.submit_button = TextButton(self.SCREEN_WIDTH-200, int(self.SCREEN_HEIGHT/2)+100, "SUBMIT", font_colour= pygame.Color("Grey"), background_colour= pygame.Color("Black"), font_size=20)
         self.public_key_box.active = True
+        self._queries = Queries()
+        self._utility = Utility()
+        #self._transactions = Transaction(sender_pk, sender_sk, recipient_pk)
+        self.account_details = self._utility.account_details(account1_mnemonic)
+        self.transaction = QueryTransaction(self.account_details['pk'], self.account_details['sk'])
+        self._account_doesnt_exist_flag = True # True if account does not exist
+        self._account_not_opted_in_flag = True # True if account is not opted in
+        self._submit_button_flag = False # True if the Submit button has been pressed
 
     def page_loop(self):
         self.running = True
@@ -62,22 +71,57 @@ class CreatePlayer(Page):
             title.draw(self.WIN)
 
             # Add public key
-            self.public_key_box.write_text(self.WIN)#, self, self.state)
+            self.public_key_box.write_text(self.WIN)
             self.public_key_box.draw_box(self.WIN)
 
             # Add IG Handle / Username
-            self.ig_handle_box.write_text(self.WIN)#, self, self.state)
+            self.ig_handle_box.write_text(self.WIN)
             self.ig_handle_box.draw_box(self.WIN)
 
-            # Add Text Button for Submitting Data
+            # Add TextButton for submitting data
+            
             if len(self.public_key_box.player_input)==58 and len(self.ig_handle_box.player_input)>0: # button is clickable when there are valid inputs
                 self.submit_button.change_colour(colour=pygame.Color("Gold")) # when button is clickable the colour changes
                 self.submit_button.draw(self.WIN)
                 if self.submit_button.clicked:
-                    print("clicked")
+                    # player has clicked the submit button
+                    #transactions = Transaction(self.account_details['pk'], self.account_details['sk'], self.public_key_box.player_input) # get ready to test opt in status
+                    self._submit_button_flag = True
+                    if self._queries.account_exists(self.public_key_box.player_input): # if account exists
+                        # you get to this point if the account exists 
+                        self._account_doesnt_exist_flag = False
+                    else:
+                        # you get here if the account does not exist
+                        self._account_doesnt_exist_flag = True
+                    #if self._queries.account_opted_in(self.public_key_box.player_input, self._utilities.read_from_file(os.path.join("Transactions","asset_id.txt"))):
+                    if self.transaction.is_opted_in(self.public_key_box.player_input):
+                        # you get here if the account is opted in
+                        self._account_not_opted_in_flag = False
+                    else:
+                        # you get here if the account is not opted in
+                        self._account_not_opted_in_flag = True
+                        
+                    
             else:
+                # the submit button cannot be pressed if essential data is missing
                 self.submit_button.change_colour(colour=pygame.Color("Grey"))
                 self.submit_button.draw(self.WIN)
+                # if the player is editing data then warning messages should be reset
+                self._account_doesnt_exist_flag = True
+                self._account_not_opted_in_flag = True
+                self._submit_button_flag = False
+
+            
+            if self._submit_button_flag and self._account_doesnt_exist_flag:
+                warning = TextButton(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2)+55, "Account Does not Exist", font_size = 10, font_colour=pygame.Color("Red"), background_colour=pygame.Color("Black"))
+                warning.draw(self.WIN)
+            elif self._submit_button_flag and self._account_not_opted_in_flag:
+                not_opted_in_warning = TextButton(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2)+55, "First You Need to Opt-in Your Account", font_size = 10, font_colour=pygame.Color("Red"), background_colour=pygame.Color("Black"))
+                not_opted_in_warning.draw(self.WIN)
+            elif self._submit_button_flag and self._account_doesnt_exist_flag == False and self._account_not_opted_in_flag == False:
+                # save the account details and re-route to the main menu
+                print("account details saved")
+
 
 
 
@@ -192,8 +236,6 @@ class MenuPage(Page):
             # the background
             self.WIN.fill((255,255,255))
             self.WIN.blit(self.background_image,(0,0))
-
-            #print(self.background_image)
 
             # TEXT
             title = TextButton(int(self.SCREEN_WIDTH/2)-300, int(self.SCREEN_HEIGHT/2)-100, "SPACEPORT MIXOLOGIST", font_size = 30, font_colour=pygame.Color("White"), background_colour=pygame.Color("Black"))
@@ -384,7 +426,6 @@ class GamePage(Page):
             # this is needed in order to give time for the explosion animation to happen when customer hits earth.
             time_delta = self.interaction.seconds_difference(self.explosion_timestamp, datetime.datetime.now())
             if time_delta is not None:
-                print(time_delta)
                 if time_delta>1:
                     self.state.curr_state = self.state.game_over_state
                     self.running = False

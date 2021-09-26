@@ -1,4 +1,4 @@
-from utility import Utility
+from Transactions.utility import Utility
 from algosdk.future.transaction import AssetTransferTxn
 
 ############

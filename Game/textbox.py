@@ -5,7 +5,7 @@ import win32clipboard
 from Game.pygame_locals_map import UnicodeCharacters  
 
 class Textbox():
-    def __init__(self, x, y, width, height, font_size, max_chars, label = None):
+    def __init__(self, x, y, width, height, font_size, max_chars, label = None, is_uppercase = True):
         self.font_path = os.path.join("Assets", "fonts","8-BIT WONDER.TTF")
         self.font = pygame.font.Font(self.font_path, font_size) # set font 
         self.player_input = ""
@@ -15,9 +15,11 @@ class Textbox():
         self.active = False
         self._pressed_on = False #if the player clicks on the textbox
         self.key_down = False
+        self.ctrlv_down = False
         self._unicode_characters = UnicodeCharacters()
         self.active_colour = pygame.Color("Gold")
         self.passive_colour = pygame.Color("Grey")
+        self.is_uppercase = is_uppercase
 
     def write_text(self, screen):
         self._selected()
@@ -40,7 +42,7 @@ class Textbox():
         text = self.player_input # get the existing text 
         if len(self.player_input)<self.max_chars: # if the text box is not overflowing
             if any(pressed) and self.key_down==False: # if there has been a key press and it is the first one
-                text += self._unicode_characters.key_press(pressed) # add the new key press char to existing text
+                text += self._unicode_characters.key_press(pressed, self.is_uppercase) # add the new key press char to existing text
                 self.key_down = True # set to true to avaid duplicates
             if not any(pressed) and self.key_down: # if the key is no longer being held down...
                 self.key_down = False # reset the flag so that a new key press can be registered.
@@ -55,15 +57,18 @@ class Textbox():
     def _copy_from_clipboard(self):
         # if user presses ctrl+v this returns the data from the clipboard (Windows OS only)
         pressed = pygame.key.get_pressed()
-        if pressed[K_v] and pressed[K_LCTRL]:
+        data = ""
+        if pressed[K_v] and pressed[K_LCTRL] and self.ctrlv_down==False:
             win32clipboard.OpenClipboard()
             data = win32clipboard.GetClipboardData()
             win32clipboard.CloseClipboard()
-            #self.player_input = data
-            if len(data)<= self.max_chars:
-                return data
-            else:
-                return data[:self.max_chars]
+            self.ctrlv_down = True 
+        elif not any(pressed) and self.ctrlv_down:
+            self.ctrlv_down = False
+        if len(data)<= self.max_chars:
+            return data
+        else:
+            return data[:self.max_chars]
         
 
     def _selected(self):

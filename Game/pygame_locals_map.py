@@ -89,7 +89,7 @@ class UnicodeCharacters():
             ,"K_PERCENT":"%"
         }
 
-    def key_press(self, pressed):
+    def key_press(self, pressed, is_uppercase):
         letter = ""
         if pressed[K_SPACE]:
             letter = self.key_dict["K_SPACE"]
@@ -295,6 +295,8 @@ class UnicodeCharacters():
             letter = self.key_dict["K_LEFTPAREN"]
         if pressed[K_LSHIFT] or pressed[K_RSHIFT] or pressed[K_CAPSLOCK]:
             letter = letter.upper()
+        if is_uppercase:
+            return letter.upper()
         return letter
 
 
