@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from Transactions.utility import Utility
 from algosdk.future.transaction import AssetTransferTxn
-from algosdk.error import AlgodHTTPError
+from algosdk.error import AlgodHTTPError, WrongChecksumError
 
 
 
@@ -59,7 +59,7 @@ class QueryTransaction():
     def is_opted_in(self, recipient_pk):
         try:
             self._send_transaction(recipient_pk)
-        except AlgodHTTPError:
+        except (AlgodHTTPError, WrongChecksumError):
             print("here") 
             return False
         return True  
